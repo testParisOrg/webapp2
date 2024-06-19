@@ -64,11 +64,7 @@ steps:
   inputs:
     summaryFileLocation: '$(Build.SourcesDirectory)/**/MyCoverage/coverage.cobertura.xml'
 
-- task: WhiteSource@21
-  name: 'SecurityScan'
-  displayName: 'Security Scan'
-  inputs:
-    cwd: '$(System.DefaultWorkingDirectory)'
+
 - task: SonarCloudAnalyze@2
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
