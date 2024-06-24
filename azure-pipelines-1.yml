@@ -7,7 +7,7 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: windows-latest
 
 
 variables:
@@ -17,23 +17,13 @@ variables:
 
 steps:
 
-- task: UseDotNet@2
-  displayName: Install .NET 6
-  inputs: 
-    packageType: 'sdk'
-    version: 6.x
-
 - task: NuGetToolInstaller@1
   name: 'NuGetToolInstaller'
   displayName: 'Nuget Tool Installer'
 
-- task: SonarCloudPrepare@2
+- task: NuGetCommand@2
   inputs:
-    SonarCloud: 'sonarCloudConn'
-    organization: 'testparisorg'
-    scannerMode: 'MSBuild'
-    projectKey: 'testParisOrg_public_webapp'
-    projectName: 'public_webapp'
+    restoreSolution: '$(solution)'
 
 - task: DotNetCoreCLI@2
   name: 'Build'
@@ -44,32 +34,8 @@ steps:
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
-  name: 'Restore'
-  displayName: 'Restore Packages'
   inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-
-- task: DotNetCoreCLI@2
-  name: 'CodeCoverage'
-  displayName: 'Code Coverage test'
-  inputs: 
-    command: test
-    projects: '**/webtest.csproj'
-    arguments: '/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./MyCoverage/'
-    publishTestResults: true
-
-- task: PublishCodeCoverageResults@2
-  displayName: 'Publish Code Coverage Results'
-  inputs:
-    summaryFileLocation: '$(Build.SourcesDirectory)/**/MyCoverage/coverage.cobertura.xml'
-
-
-- task: SonarCloudAnalyze@2
-  inputs:
-    jdkversion: 'JAVA_HOME_17_X64'
-- task: SonarCloudPublish@2
-  inputs:
-    pollingTimeoutSec: '300'
-
+    command: publish
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
